@@ -1,0 +1,146 @@
+/*************************************************************************
+ *
+ *  Pace University
+ *  Spring 2020
+ *  Algorithms and Computing Theory
+ *
+ *  Course: CS 242
+ *  Team members: Czarina Manipon
+ *  Collaborators: None
+ *  References: Introduction to Algorithms 3rd Edition Thomas H. Cormen
+ *  https://www.w3schools.com/java/java_files_create.asp 
+ *  https://www.dev2qa.com/how-to-write-console-output-to-text-file-in-java/
+ *
+ *  Assignment: #3
+ *  Problem: Compare experimentally the result obtained in justifying text
+ *  with a greedy algorithm against doing the same using LATEX rules and
+ *  Dynamic Programming. 
+ *  Description: Implements a method that arranges text in a "nicely"
+ *  arranged dislay by justifying each line so that they are all the same
+ *  length.
+ *
+ *  Input: 
+ *  Output: 
+ *
+ *  Visible data fields:
+ *  COPY DECLARATION OF VISIBLE DATA FIELDS HERE
+ *
+ *  Visible methods:
+ *  COPY SIGNATURE OF VISIBLE METHODS HERE
+ *
+ *
+ *   Remarks
+ *   -------
+ *
+ *   PUT ALL NON-CODING ANSWERS HERE
+ *
+ *
+ *************************************************************************/
+import java.io.FileNotFoundException;
+import java.io.IOExcepion;
+import java.io.PrintStream;
+import java.io.File;
+public class textJustification{
+  public int badness(String[] W, int i, int j, int w){
+    //defines badness of a document according to LaTex system
+    //index i = starting index of a line
+    //index j = starting index of the next line
+    //w = page width
+    //returns index where line containing words from W should split
+    int totalLength = 0;
+    //initalizes total length of suffixes from i to j
+    for(int k = i; k <= j; k++){
+      //calculates total length of line from index i - j words
+      totalLength = totalLength + W[k].length();
+    }
+    if(totalLength > w){
+      //if the total length exceeds the page width, infinite badness
+      return Integer.MAX_VALUE;
+    } else {
+      //else, return space difference of the width and the length of line i, j
+      return w - totalLength;
+    }
+  }
+  
+  public int [] split(int w, String[] W){
+    int[] L = minBadness(W, w);
+    return L;
+  }
+  
+  public void justify(int w, String[] W, int[] L){
+    //try {
+      File file = new File("textjust.txt");
+      PrintStream originalOut = System.out; //saves original print stream
+      PrintStream fileOut = new PrintStream("./textjust.txt");
+      if (file.createNewFile()) {
+        System.out.println("File created: " + file.getName());
+      } else {
+        System.out.println("File already exists.");
+      }
+    /*} catch (IOException e) {
+      System.out.println("An error occurred.");
+      e.printStackTrace();
+    }*/
+    
+    // w = page width
+    // W = strings
+    // L = 
+    for(int l = 0; l < L.length; l++){
+      for(int i = l; i < L[l] - 1; i++){
+        System.out.print(W[i]);
+        if(i == L[i] - 1)
+          System.out.print(" ");
+        else
+          System.out.println();
+      }
+    }
+  }
+  public int[] minBadness(String[] W, int w){
+    //returns array of indices of W where each suffix of W should start
+    //to maintain the minimum badness
+    int n = W.length;
+    int[] memo = new int[n]; //each index = min badness of the array from
+    //index i to n suffixes
+    int[] linebreaks_memo = new int[n]; //contains on each position i the
+    //index of W where the next line of suffix W[i..n-1] should start
+    for(int i = 0; i < n; i++){
+      //sets the min badness of each index in memo temporarily to -1
+      memo[i] = -1;
+    }
+    memoMinBadness(W, 0, memo, linebreaks_memo, w);
+    return linebreaks_memo;
+  }
+  
+  public int memoMinBadness(String[] W, int i, int[] memo, int[] linebreaks_memo, int w){
+    //returns minimum badness of the words from index i to n - 1 of array W
+    int n = W.length; //stores length of array W
+    if(memo[i] >= 0)
+      return memo[i]; //if the min badness at i -> n is greater than 0, return ot
+    if(i == n){ //if the index where the line starts = size of the array W
+      memo[i] = n;
+      linebreaks_memo[i] = n;
+      //the min badness at index i = size of W and the breakpoint for suffix from i
+      // is the size of W as well
+    }else{ //if the starting index of the line does not equal the size of W
+      int min = Integer.MAX_VALUE; //stores minimum badness init. at infinity
+      int indexOfmin = 0; //stores index of the minimum badness
+      int temp;
+      //temporarily stores the possible new minimum badness to compare with current min
+      for(int j = i + 1; j < n; j++){
+        //for each suffix from after index  i to end of the array
+        temp = badness(W, i, j, w); //b
+        temp = temp + memoMinBadness(W, j, memo, linebreaks_memo, w);
+        //badness of line i,j plus the optimal split of the line
+        if(temp < min){
+          //if the new possible min badness is less than the current min
+          //becomes the new in
+          min = temp;
+          indexOfmin = j; //stores index of min where the next line should start
+        }
+      }
+      memo[i] = min; //stores min badness of the line starting at index i
+      linebreaks_memo[i] = indexOfmin; //stores breakpoint where next line starts after
+    }
+    return memo[i];
+  }
+}

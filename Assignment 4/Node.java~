@@ -1,0 +1,75 @@
+/*************************************************************************
+ *
+ *  Pace University
+ *  Spring 2020
+ *  Algorithms and Computing Theory
+ *
+ *  Course: CS 242
+ *  Team members: Czarina Manipon
+ *  Collaborators: None
+ *  References: Introduction to Algorithms 3rd Edition Thomas H. Cormen
+ *
+ *  Assignment: #4
+ *  Problem: Evaluate experimentally the performance of an efficient
+ *  implementation of DFS
+ *  Description: Node Class
+ *
+ *  Input:
+ *  Output:
+ *
+ *  Visible data fields:
+ *
+ *  Visible methods:
+ *  
+ *
+ *
+ *************************************************************************/
+public class Node{
+  private String color; //stores color of node
+  private int dt; //stores discovery time
+  private int ft; //stores finishing time
+  private Node next; //stores directed edge to next adj. node
+  private int weight;
+  
+  public Node(int weight){
+    color = "";
+    dt = 0;
+    ft = 0;
+    next = null;
+    this.weight = weight;
+  }
+  
+  public int getWeight(){
+    return weight;
+  }
+  
+  public void updateColor(String c){
+    //updates color of a node
+    color = c;
+  }
+  
+  public void setDisc(int t){
+    //sets discovery time of a node
+    dt = t;
+  }
+  
+  public void setFin(int t){
+    //sets finishing time of a node
+    ft = t;
+  }
+  
+  public void setNext(Node n){
+    next = n;
+  }
+  
+  public Node getNext(){
+    return next;
+  }
+  
+  public String printNode(){
+    if(next != null)
+      return "Node " + weight + " -> " + next.getWeight();
+    else
+      return "Node " + weight + " -> null";
+  }
+}

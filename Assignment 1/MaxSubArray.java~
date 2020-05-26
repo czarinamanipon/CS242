@@ -1,0 +1,168 @@
+/*************************************************************************
+ *
+ *  Pace University
+ *  Spring 2020
+ *  Algorithms and Computing Theory
+ *
+ *  Course: CS 242
+ *  Team members: Czarina Manipon
+ *  Collaborators: None
+ *  References: https://stackoverflow.com/questions/12952024/how-to-implement-infinity-in-java
+ *              https://stackoverflow.com/questions/27976857/how-to-get-random-number-with-negative-number-in-range
+ *              Introduction to Algorithms 3rd Edition
+ *
+ *  Assignment: #1
+ *  Problem: Implement both a brute force array and a divide-and-conquer
+ *  algorithm to find the max subarray sum in an array of numbers and analyze
+ *  the run times of both.
+ *  Description: Max SubArray Class that implements two different algorithims
+ *  that each find the contigious subarray within an array of numbers that has
+ *  the largest sum.
+ *
+ *  Input: 1405 13454 143255 1593732 13568332
+ *  Output:
+ *  Enter the size of the array: [1405]
+ *  Brute Force Max Subarray Sum: 2399 
+ *  Algorithm 1 Run Time: 16747618
+ *  Divide and Conquer Max Subarry Sum: 2399
+ *  Algorithm 2 Run Time: 4109478 
+ * 
+ *  Enter the size of the array: [13454]
+ *  Brute Force Max Subarray Sum: 6951 
+ *  Algorithm 1 Run Time: 242196250
+ *  Divide and Conquer Max Subarry Sum: 6951
+ *  Algorithm 2 Run Time: 5105969 
+ *  
+ *  Enter the size of the array: [143255]
+ *  Brute Force Max Subarray Sum: 9259 
+ *  Algorithm 1 Run Time: 36165470096
+ *  Divide and Conquer Max Subarry Sum: 9259
+ *  Algorithm 2 Run Time: 5105969 
+ *  
+ *  Enter the size of the array: [1593732]
+ *  Brute Force Max Subarray Sum: 
+ *  Algorithm 1 Run Time:
+ *  Divide and Conquer Max Subarry Sum:
+ *  Algorithm 2 Run Time: 
+ *
+ *  Visible data fields:
+ *  None
+ *
+ *  Visible methods:
+ *  public static void main(String args[])
+ *  public static int bruteForce(int[] A)
+ *  public static int divideAndConquer(int[] A)
+ *  public static int max(int A, int B)
+ *  public static int max(int A, int B, int C)
+ *  public static int maxSubarray(int[] A, int low, int high)
+ *  public static int maxCrossingSubarray(int[] A, int low, int mid, int high)
+ *
+ *
+ *   Remarks
+ *   -------
+ *
+ *   PUT ALL NON-CODING ANSWERS HERE
+ *
+ *   2. 
+ *                        n = 10^3   n = 10^4   n = 10^5    n = 10^6   n = 10^7
+ *   brute force          16747618   242196250  36165470096
+ *   divide and conquer   4109478    5105969    16792530
+ *************************************************************************/
+import java.util.Scanner;
+import java.util.Random;
+public class MaxSubArray{
+  public static void main(String[] args){ //creates array and calls both brute force and divide and conquer algorithms to find max subarry sums
+    Scanner scan = new Scanner(System.in); //scanner for user input n
+    int n; //stores user inputed value that determines the size of the arraay
+    
+    System.out.print("Enter the size of the array:");
+    n = scan.nextInt();
+    
+    int[] arr = new int[n]; //creates array of integers with size n
+    Random rand = new Random(); //random generator to create both positive and negative numbers for array
+    for(int i = 0; i < n; i++){ //fills array with random integers from (-100, 100)
+      arr[i] = rand.nextInt(100 + 100) - 100;
+    }
+    System.out.println();
+    
+    long startTime = System.nanoTime(); //saves the start time of the method call
+    System.out.println("Brute Force Max Subarray Sum: " + bruteForce(arr));
+    System.out.println("Algorithm 1 Run Time: " + (System.nanoTime() - startTime));
+    
+    startTime = System.nanoTime();
+    System.out.println("Divide and Conquer Max Subarry Sum: " + divideAndConquer(arr));
+    
+    System.out.println("Algorithm 2 Run Time: " + (System.nanoTime() - startTime));
+  }
+  
+  public static int bruteForce(int[] A){ //implements algorithm 1: brute force, O(n^2) runtime
+    int sum; //stores the temporary max sum of integers from A[j] to A[n]
+    int maxSum = Integer.MIN_VALUE; //stores the final max sum as the for loop iterates through the array
+    for(int i = 0; i < A.length; i++){ //iterates over each integer in the array
+      sum = 0;
+      for(int j = i; j < A.length; j++){ //for each integer in the array, the sum of integers within the range A[j - n]
+       sum = sum + A[j];
+       maxSum = max(maxSum, sum);
+      }
+    }
+    return maxSum;
+  }
+  
+  public static int divideAndConquer(int[] A){ //implements algorithm 2: divide and conquer, O(nlogn) run time
+    int low = 0; //stores the beginning index of the array
+    int high = A.length - 1; //stores the ending index of the array
+    return maxSubarray(A, low, high); 
+  }
+  
+  public static int max(int a, int b){ //determines the max of two integers
+    if(a >= b)
+      return a;
+    else
+      return b;
+  }
+  
+   public static int max(int a, int b, int c){ //returns the max of three integers
+     if((a >= b) && (a >= c)){
+       return a;
+     }
+     else if((b >= a) && (b >= c)){
+      return b;
+     }
+     else {
+       return c;
+     }
+  }
+  
+  public static int maxSubarray(int[] A, int low, int high){ //divides the array into two smaller subarrays, recursively finds the max sum of the subarrays, then compares them to find the final max sum
+    if (A[high] == A[low]){ //base case
+      return A[low];
+    }
+    else{
+      int mid = (low + high) / 2; //stores middle value where the array will be split
+      int leftSum = maxSubarray(A, low, mid); //stores the max sum of the left side of the array found by recursion
+      int rightSum = maxSubarray(A, mid + 1, high); //stores the the max sum of the right side of the array found by recursion
+      int crossSum = maxCrossingSubarray(A, low, mid, high); //stores the max sum of the array that crosses both the left and right subarrays in the center
+      return max(leftSum, rightSum, crossSum);
+    }
+  }
+  
+  public static int maxCrossingSubarray(int[] A, int low, int mid, int high){ //finds the max sum of the subarray crossing the left and right subarrays in divide and conquer
+    int leftSum = Integer.MIN_VALUE; //initializes the max sum of the left subarray to negative infinity
+    int sum = 0; //stores the to be determined max sum of the left array
+    for(int i = mid; i >= low; i--){ //from the middle value to the lowest value, determines a new sum and compares with the last sum to determine the final max sum of the left subarray
+      sum = sum + A[i];
+      if(sum > leftSum){ //if the sum from A[i] to the lowest value is greater than the current max sum, it becomes the new max sum of the left subarray
+        leftSum = sum;
+      }
+    }
+    int rightSum = Integer.MIN_VALUE; //initializes the max sum of the right subarray to negative infinity
+    sum = 0;
+    for(int j = (mid + 1); j <= high; j++){ //from the middle value to the highest value, determines a new sum and compares with the last sum to determine the final max sum of the right subarray
+      sum = sum + A[j];
+      if(sum > rightSum){ //if the sum from A[j] to the highest value is greater than the current max sum, it becomes the new max sum of the right subarray
+        rightSum = sum;
+      }
+    }
+    return leftSum + rightSum;
+  }
+}
